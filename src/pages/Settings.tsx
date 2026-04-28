@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { DEFAULT_TEMPLATES } from '../lib/constants';
 import toast from 'react-hot-toast';
-import { isLinkedInConnected } from '../services/linkedinService';
+import { isLinkedInConnected, setupLinkedInListener } from '../services/linkedinService';
 
 export default function Settings() {
   const [hunterKey, setHunterKey] = useState('');
@@ -26,10 +26,19 @@ export default function Settings() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [systemStatus, setSystemStatus] = useState({ hunter: false, linkedin: false });
 
-  useEffect(() => {
-    // Check local Auth
+  const checkAuthStatus = () => {
     isLinkedInConnected().then(connected => {
       setLinkedInConnected(connected);
+    });
+  };
+
+  useEffect(() => {
+    // Check local Auth
+    checkAuthStatus();
+
+    // Setup LinkedIn listener for the popup
+    const cleanup = setupLinkedInListener(() => {
+      checkAuthStatus();
     });
 
     // Check system config
@@ -40,6 +49,8 @@ export default function Settings() {
         setCheckingAuth(false);
       })
       .catch(() => setCheckingAuth(false));
+
+    return cleanup;
   }, []);
 
   const handleSave = () => {
