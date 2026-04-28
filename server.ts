@@ -20,22 +20,35 @@ async function startServer() {
     res.json({ status: 'ok' });
   });
 
+  app.get('/api/status', (req, res) => {
+    res.json({
+      hunter: !!(process.env.HUNTER_API_KEY || process.env.VITE_HUNTER_API_KEY),
+      linkedin: !!process.env.LINKEDIN_CLIENT_ID,
+      gemini: !!process.env.GEMINI_API_KEY
+    });
+  });
+
   // LinkedIn Auth URL
   app.get('/api/auth/linkedin/url', (req, res) => {
     const clientId = process.env.LINKEDIN_CLIENT_ID;
     if (!clientId) {
+      console.error('LinkedIn Auth Error: LINKEDIN_CLIENT_ID is missing');
       return res.status(500).json({ error: 'LINKEDIN_CLIENT_ID not configured' });
     }
 
-    const redirectUri = `${process.env.APP_URL}/api/auth/linkedin/callback`;
-    const scope = 'r_liteprofile r_emailaddress w_member_social'; // Basic scopes
+    const host = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+    const redirectUri = `${host}/api/auth/linkedin/callback`;
+    // Modernized scopes: openid, profile, and email are the new standards
+    const scope = 'openid profile email w_member_social'; 
+
+    console.log(`Generating LinkedIn Auth URL with redirect: ${redirectUri}`);
 
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: clientId,
       redirect_uri: redirectUri,
       scope: scope,
-      state: 'random_state_string' // In production, use session-based state
+      state: 'random_state_string' 
     });
 
     const authUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
@@ -45,7 +58,7 @@ async function startServer() {
   // Hunter.io Proxy
   app.get('/api/hunter/search', async (req, res) => {
     const { domain } = req.query;
-    const apiKey = process.env.VITE_HUNTER_API_KEY;
+    const apiKey = process.env.HUNTER_API_KEY || process.env.VITE_HUNTER_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({ error: 'Hunter.io API key not configured' });
@@ -67,12 +80,13 @@ async function startServer() {
 
   // LinkedIn Callback
   app.get(['/api/auth/linkedin/callback', '/api/auth/linkedin/callback/'], async (req, res) => {
-    const { code, error } = req.query;
+    const { code, error, error_description } = req.query;
 
     if (error) {
+      console.error('LinkedIn Auth Callback Error:', error, error_description);
       return res.send(`
         <script>
-          window.opener.postMessage({ type: 'LINKEDIN_AUTH_ERROR', error: '${error}' }, '*');
+          window.opener.postMessage({ type: 'LINKEDIN_AUTH_ERROR', error: '${error_description || error}' }, '*');
           window.close();
         </script>
       `);
@@ -81,7 +95,10 @@ async function startServer() {
     try {
       const clientId = process.env.LINKEDIN_CLIENT_ID;
       const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
-      const redirectUri = `${process.env.APP_URL}/api/auth/linkedin/callback`;
+      const host = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+      const redirectUri = `${host}/api/auth/linkedin/callback`;
+
+      console.log(`Exchanging LinkedIn code for token. Redirect URI used: ${redirectUri}`);
 
       const response = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
         params: {

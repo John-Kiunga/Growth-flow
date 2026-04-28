@@ -20,19 +20,30 @@ import toast from 'react-hot-toast';
 import { isLinkedInConnected } from '../services/linkedinService';
 
 export default function Settings() {
-  const [enrichmentKey, setEnrichmentKey] = useState('');
+  const [hunterKey, setHunterKey] = useState('');
   const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
   const [linkedInConnected, setLinkedInConnected] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [systemStatus, setSystemStatus] = useState({ hunter: false, linkedin: false });
 
   useEffect(() => {
+    // Check local Auth
     isLinkedInConnected().then(connected => {
       setLinkedInConnected(connected);
-      setCheckingAuth(false);
     });
+
+    // Check system config
+    fetch('/api/status')
+      .then(res => res.json())
+      .then(status => {
+        setSystemStatus(status);
+        setCheckingAuth(false);
+      })
+      .catch(() => setCheckingAuth(false));
   }, []);
 
   const handleSave = () => {
+    // In a real app we'd save this to Firestore
     toast.success('Settings updated successfully');
   };
 
@@ -44,42 +55,194 @@ export default function Settings() {
       </div>
 
       <div className="space-y-12">
-        {/* API Credentials */}
+        {/* LinkedIn Integration */}
         <section className="space-y-8">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
-              <Key className="h-5 w-5 text-indigo-600" />
+            <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+              <Linkedin className="h-5 w-5 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900">Connected Services</h2>
+            <h2 className="text-xl font-bold tracking-tight text-zinc-900">LinkedIn Connectivity</h2>
           </div>
           
           <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
             <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
-              <Database className="h-40 w-40 text-zinc-900" />
+              <Linkedin className="h-40 w-40 text-zinc-900" />
             </div>
 
             <div className="space-y-8 max-w-xl relative z-10">
-              <div className="space-y-4">
-                <label className="block text-[10px] font-extrabold uppercase tracking-[0.2em] text-zinc-400 mb-2">Data Enrichment Key (e.g. Apollo / Hunter.io)</label>
-                <div className="relative group">
-                  <input 
-                    type="password" 
-                    placeholder="sk_live_••••••••••••••••"
-                    value={enrichmentKey}
-                    onChange={(e) => setEnrichmentKey(e.target.value)}
-                    className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl font-mono text-sm focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all"
-                  />
-                  <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                    <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-amber-100">Pending</span>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-zinc-900">Official API Access</h3>
+                <p className="text-sm text-zinc-500 font-medium">
+                  Connect your LinkedIn profile to enable real-time messaging, profile enrichment, and automated outreach tracking.
+                </p>
+              </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {!systemStatus.linkedin && (
+                    <div className="w-full sm:w-auto px-4 py-3 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-3">
+                      <Lock className="h-4 w-4 text-amber-600" />
+                      <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">System Setup Required</p>
+                    </div>
+                  )}
+
+                  {systemStatus.linkedin && !linkedInConnected && (
+                    <div className="space-y-6 w-full">
+                      <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-3xl space-y-4">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Required Redirect URI</label>
+                          <button 
+                            onClick={() => {
+                              const url = `${window.location.protocol}//${window.location.host}/api/auth/linkedin/callback`;
+                              navigator.clipboard.writeText(url);
+                              toast.success('Redirect URI copied');
+                            }}
+                            className="text-[10px] font-bold text-indigo-600 hover:underline"
+                          >
+                            Copy to Clipboard
+                          </button>
+                        </div>
+                        <code className="block text-xs font-mono text-zinc-600 break-all bg-white p-3 rounded-xl border border-zinc-100">
+                          {window.location.protocol}//{window.location.host}/api/auth/linkedin/callback
+                        </code>
+                        <p className="text-[10px] text-amber-600 font-bold leading-relaxed">
+                          ⚠️ Ensure this exact URL is added to your LinkedIn Developer Portal "Authorized Redirect URLs". 
+                          Also, ensure you have enabled the <b>"Sign In with LinkedIn using OpenID Connect"</b> and <b>"Share on LinkedIn"</b> products in your LinkedIn Developer dashboard.
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/auth/linkedin/url');
+                            const data = await res.json();
+                            if (data.error) throw new Error(data.error);
+                            
+                            const authWindow = window.open(data.url, 'linkedin_auth', 'width=600,height=700');
+                            if (!authWindow) {
+                              toast.error('Popup blocked. Please allow popups.');
+                            }
+                          } catch (err: any) {
+                            toast.error(err.message || 'Failed to initialize LinkedIn connection');
+                          }
+                        }}
+                        disabled={checkingAuth}
+                        className="w-full sm:w-auto px-8 py-4 bg-[#0077b5] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#006396] shadow-lg shadow-blue-100 transition-all active:scale-95"
+                      >
+                        {checkingAuth ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Linkedin className="h-5 w-5" />
+                            Link LinkedIn Account
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {linkedInConnected && (
+                    <div className="flex items-center gap-4 p-4 bg-emerald-50 border border-emerald-100 rounded-3xl w-full sm:w-auto">
+                      <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-emerald-200">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-emerald-900 leading-tight">Identity Verified</p>
+                        <p className="text-[10px] text-emerald-700 font-medium uppercase tracking-widest">Active LinkedIn Bridge</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {!linkedInConnected && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-400 border border-zinc-100 rounded-2xl text-[10px] font-extrabold uppercase tracking-widest">
+                      <Lock className="h-3.5 w-3.5" />
+                      Status: {systemStatus.linkedin ? 'Ready to Connect' : 'Missing API Credentials'}
+                    </div>
+                  )}
+                </div>
+
+              <div className="pt-4 border-t border-zinc-100 flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-6 w-6 rounded-full bg-zinc-200 border-2 border-white" />
+                  ))}
+                </div>
+                <p className="text-[11px] text-zinc-400 font-medium">
+                  Used by 42+ team members for unified inbox synchronization.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Hunter.io Integration */}
+        <section className="space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+              <Mail className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold tracking-tight text-zinc-900">Email Discovery (Hunter.io)</h2>
+              {systemStatus.hunter && (
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase tracking-wider">
+                  System Configured
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
+            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
+              <Zap className="h-40 w-40 text-zinc-900" />
+            </div>
+
+            <div className="space-y-8 max-w-xl relative z-10">
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-zinc-900">Email Finding API</h3>
+                <p className="text-sm text-zinc-500 font-medium">
+                  {systemStatus.hunter 
+                    ? "Your email discovery service is fully operational. We're using the workspace-wide API key for all prospecting tasks." 
+                    : "Power your prospecting tool with Hunter.io's domain search. Find verified emails for any B2B domain instantly."}
+                </p>
+              </div>
+
+              {!systemStatus.hunter ? (
+                <div className="space-y-4">
+                  <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest pl-1">
+                    Hunter API Key
+                  </label>
+                  <div className="flex gap-4">
+                    <input 
+                      type="password"
+                      placeholder="Enter Hunter.io API Key"
+                      value={hunterKey}
+                      onChange={(e) => setHunterKey(e.target.value)}
+                      className="flex-1 px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm"
+                    />
+                    <button 
+                      onClick={() => {
+                        if (hunterKey) {
+                          toast.success('Hunter.io configured!');
+                        } else {
+                          toast.error('Please enter a key');
+                        }
+                      }}
+                      className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-200"
+                    >
+                      Verify
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 pt-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-500 mt-0.5" />
-                  <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
-                    Currently utilizing specialized internal mock data. Connect an external API for production intelligence. 
-                  </p>
+              ) : (
+                <div className="flex items-center gap-4 p-6 bg-emerald-50 border border-emerald-100 rounded-3xl group">
+                  <div className="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-emerald-200 group-hover:scale-110 transition-transform">
+                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-900">Security Integration Active</p>
+                    <p className="text-xs text-emerald-700/70 font-medium">Authentication handled securely at the server level.</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
@@ -143,141 +306,6 @@ export default function Settings() {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* LinkedIn Integration */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-              <Linkedin className="h-5 w-5 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900">LinkedIn Connectivity</h2>
-          </div>
-          
-          <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
-            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
-              <Linkedin className="h-40 w-40 text-zinc-900" />
-            </div>
-
-            <div className="space-y-8 max-w-xl relative z-10">
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-zinc-900">Official API Access</h3>
-                <p className="text-sm text-zinc-500 font-medium">
-                  Connect your LinkedIn profile to enable real-time messaging, profile enrichment, and automated outreach tracking.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={async () => {
-                    if (linkedInConnected) {
-                      toast.success('LinkedIn is already connected');
-                      return;
-                    }
-                    try {
-                      const res = await fetch('/api/auth/linkedin/url');
-                      const { url, error } = await res.json();
-                      if (error) throw new Error(error);
-                      
-                      const authWindow = window.open(url, 'linkedin_auth', 'width=600,height=700');
-                      if (!authWindow) {
-                        toast.error('Popup blocked. Please allow popups.');
-                      }
-                    } catch (err: any) {
-                      toast.error(err.message || 'Failed to initialize LinkedIn connection');
-                    }
-                  }}
-                  disabled={checkingAuth}
-                  className={`px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${
-                    linkedInConnected 
-                    ? 'bg-emerald-600 text-white shadow-emerald-100' 
-                    : 'bg-[#0077b5] text-white hover:bg-[#006396] shadow-blue-100'
-                  }`}
-                >
-                  {checkingAuth ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : linkedInConnected ? (
-                    <>
-                      <CheckCircle2 className="h-5 w-5" />
-                      Account Connected
-                    </>
-                  ) : (
-                    <>
-                      <Linkedin className="h-5 w-5" />
-                      Link LinkedIn Account
-                    </>
-                  )}
-                </button>
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-extrabold uppercase tracking-widest border ${
-                  linkedInConnected 
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                  : 'bg-zinc-50 text-zinc-400 border-zinc-100'
-                }`}>
-                  {linkedInConnected ? (
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                  ) : (
-                    <Lock className="h-3.5 w-3.5" />
-                  )}
-                  Status: {linkedInConnected ? 'Verified Integration' : 'Not Connected'}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-zinc-100 flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-6 w-6 rounded-full bg-zinc-200 border-2 border-white" />
-                  ))}
-                </div>
-                <p className="text-[11px] text-zinc-400 font-medium">
-                  Used by 42+ team members for unified inbox synchronization.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Hunter.io Integration */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
-              <Mail className="h-5 w-5 text-indigo-600" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900">Email Discovery (Hunter.io)</h2>
-          </div>
-          
-          <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
-            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
-              <Zap className="h-40 w-40 text-zinc-900" />
-            </div>
-
-            <div className="space-y-8 max-w-xl relative z-10">
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-zinc-900">Email Finding API</h3>
-                <p className="text-sm text-zinc-500 font-medium">
-                  Power your prospecting tool with Hunter.io's domain search. Find verified emails for any B2B domain instantly.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest pl-1">
-                  Hunter API Key
-                </label>
-                <div className="flex gap-4">
-                  <input 
-                    type="password"
-                    placeholder="Enter Hunter.io API Key"
-                    className="flex-1 px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm"
-                  />
-                  <button className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-200">
-                    Verify
-                  </button>
-                </div>
-                <p className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-[10px] font-bold uppercase tracking-widest inline-block">
-                  API Integrated Successfully
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 

@@ -35,9 +35,24 @@
         "created_at": { "type": "string", "format": "date-time" }
       },
       "required": ["lead_id", "type", "created_at"]
+    },
+    "UserSettings": {
+      "title": "User Workspace Configuration",
+      "description": "Integration tokens and workspace preferences",
+      "type": "object",
+      "properties": {
+        "linkedin_connected": { "type": "boolean" },
+        "linkedin_token": { "type": "string" },
+        "linkedin_updated_at": { "type": "string" },
+        "hunter_api_key": { "type": "string" }
+      }
     }
   },
   "firestore": {
+    "/user_settings/{userId}": {
+      "schema": "UserSettings",
+      "description": "Credential store and workspace preferences"
+    },
     "/leads/{leadId}": {
       "schema": "Lead",
       "description": "Storage for identified growth nodes"

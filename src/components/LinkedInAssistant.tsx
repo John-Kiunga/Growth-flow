@@ -68,8 +68,13 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
       const comment = await generateLinkedInComment(postContent, selectedTone.label);
       setGeneratedComment(comment);
       toast.success('Comment crafted');
-    } catch (error) {
-      toast.error('Failed to craft comment');
+    } catch (error: any) {
+      console.error('Comment generation error:', error);
+      if (error?.message?.includes('429')) {
+        toast.error('AI is busy. Please try again in 5 seconds.');
+      } else {
+        toast.error('Failed to craft comment');
+      }
     } finally {
       setGeneratingComment(false);
     }
@@ -161,7 +166,12 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-3xl border border-zinc-200 p-8 space-y-6 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Strategy Insight</span>
+                  <div className="flex items-center gap-2">
+                    {analyzing && <Loader2 className="h-3 w-3 animate-spin text-indigo-600" />}
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">
+                      {analyzing ? 'Performing Deep Audit...' : 'Strategy Insight'}
+                    </span>
+                  </div>
                   <div className={`px-3 py-1 rounded-full text-[10px] font-bold ${
                     analysis.opportunityFound ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-50 text-zinc-500'
                   }`}>
@@ -170,14 +180,17 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-sm font-medium text-zinc-600 leading-relaxed italic">
-                    "{analysis.reason}"
-                  </p>
+                  <div className="relative">
+                    <div className="absolute -left-3 top-0 bottom-0 w-1 bg-indigo-600 rounded-full opacity-20" />
+                    <p className="text-base font-bold text-zinc-800 leading-tight tracking-tight">
+                      {analysis.reason}
+                    </p>
+                  </div>
                   
                   {analysis.suggestedService && (
                     <div className="pt-4 border-t border-zinc-100">
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Recommended Focus</p>
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg font-bold text-xs">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-100">
                         <Sparkles className="h-3 w-3" />
                         {analysis.suggestedService}
                       </div>

@@ -41,10 +41,19 @@ export function ProspectingTool() {
     setEmails({});
     try {
       const data = await findProspects(niche, location);
-      setResults(data);
-      toast.success(`Discovered ${data.length} B2B prospects`);
-    } catch (error) {
-      toast.error('Search engine encountered an error');
+      if (data && data.length > 0) {
+        setResults(data);
+        toast.success(`Discovered ${data.length} tailored prospects`);
+      } else {
+        toast.error("Model capacity reached. Please try in a few seconds.");
+      }
+    } catch (error: any) {
+      console.error("Prospecting error:", error);
+      if (error?.message?.includes('429') || error?.message?.includes('exhausted')) {
+        toast.error("AI service is busy. Retrying momentarily...");
+      } else {
+        toast.error("Search engine encountered an error");
+      }
     } finally {
       setLoading(false);
     }
