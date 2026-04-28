@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Growth Lead",
+      "description": "Potential client identified for design, SEO, or dev services",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "linkedin_url": { "type": "string" },
+        "website": { "type": "string" },
+        "email": { "type": "string" },
+        "industry": { "type": "string" },
+        "score": { "type": "number" },
+        "audit": { "type": "string" },
+        "status": { "type": "string", "enum": ["New", "Intercepted", "Contacted", "Responded", "Closed"] },
+        "owner_id": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "opportunity_type": { "type": "string", "enum": ["Design", "SEO", "Maintenance", "Graphic Design"] },
+        "tech_stack": { "type": "string" }
+      },
+      "required": ["name", "company", "status", "owner_id"]
+    },
+    "LinkedInInteraction": {
+      "title": "LinkedIn Protocol",
+      "description": "Log of interactions on LinkedIn posts or profiles",
+      "type": "object",
+      "properties": {
+        "lead_id": { "type": "string" },
+        "post_url": { "type": "string" },
+        "post_content": { "type": "string" },
+        "generated_comment": { "type": "string" },
+        "sent": { "type": "boolean" },
+        "type": { "type": "string", "enum": ["Comment", "DM"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["lead_id", "type", "created_at"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Storage for identified growth nodes"
+    },
+    "/leads/{leadId}/interactions/{interactionId}": {
+      "schema": "LinkedInInteraction",
+      "description": "Tactical interactions for a specific lead"
+    }
+  }
+}
