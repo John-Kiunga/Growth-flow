@@ -21,6 +21,7 @@ import { AddLeadModal } from '../components/AddLeadModal';
 import { OutreachModal } from '../components/OutreachModal';
 import { LinkedInAssistant } from '../components/LinkedInAssistant';
 import { ProspectingTool } from '../components/ProspectingTool';
+import { ConnectionAnalyzer } from '../components/ConnectionAnalyzer';
 import { Lead, LeadStatus } from '../lib/types';
 import { db, auth } from '../lib/firebase';
 import { 
@@ -43,7 +44,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<'pipeline' | 'linkedin'>('pipeline');
+  const [activeTab, setActiveTab] = useState<'pipeline' | 'prospecting' | 'linkedin' | 'network'>('pipeline');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -253,6 +254,15 @@ export default function Dashboard() {
               >
                 LinkedIn Assistant
               </button>
+              <button 
+                onClick={() => setActiveTab('network')}
+                className={cn(
+                  "px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
+                  activeTab === 'network' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                )}
+              >
+                Connection Audit
+              </button>
             </div>
 
             <div className="w-px h-6 bg-zinc-200" />
@@ -374,7 +384,7 @@ export default function Dashboard() {
             >
               <ProspectingTool />
             </motion.div>
-          ) : (
+          ) : activeTab === 'linkedin' ? (
             <motion.div
               key="linkedin"
               initial={{ opacity: 0, y: 20 }}
@@ -382,6 +392,15 @@ export default function Dashboard() {
               exit={{ opacity: 0, y: -20 }}
             >
               <LinkedInAssistant />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="network"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <ConnectionAnalyzer />
             </motion.div>
           )}
         </AnimatePresence>

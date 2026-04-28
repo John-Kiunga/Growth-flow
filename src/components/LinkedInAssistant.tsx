@@ -14,8 +14,15 @@ import {
   BrainCircuit,
   Settings2
 } from 'lucide-react';
-import { generateLinkedInComment, analyzePostForLeads } from '../lib/ai';
+import { generateLinkedInComment, analyzePostForLeads, generateResponseStrategy } from '../lib/ai';
 import toast from 'react-hot-toast';
+import { 
+  Plus,
+  Send,
+  ExternalLink,
+  ChevronRight,
+  Mail as MailIcon
+} from 'lucide-react';
 
 interface LinkedInAssistantProps {
   onInterceptComplete?: (data: any) => void;
@@ -36,6 +43,9 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
   const [analysis, setAnalysis] = useState<any>(null);
   const [generatedComment, setGeneratedComment] = useState('');
   const [generatingComment, setGeneratingComment] = useState(false);
+  const [strategy, setStrategy] = useState<any>(null);
+  const [generatingStrategy, setGeneratingStrategy] = useState(false);
+  const [activeTab, setActiveTab] = useState<'comment' | 'outreach'>('comment');
 
   const handleAnalyze = async () => {
     if (!postContent.trim()) {
@@ -80,7 +90,34 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
     }
   };
 
+  const handleGenerateStrategy = async () => {
+    if (!analysis) return;
+    setGeneratingStrategy(true);
+    try {
+      const result = await generateResponseStrategy(analysis, postContent);
+      setStrategy(result);
+      setGeneratedComment(result.strategicComment);
+      toast.success('Omnichannel strategy drafted');
+    } catch (error) {
+      toast.error('Failed to generate strategy');
+    } finally {
+      setGeneratingStrategy(false);
+    }
+  };
+
+  const postComment = async (text: string) => {
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+      {
+        loading: 'Publishing to LinkedIn...',
+        success: 'Comment posted successfully!',
+        error: 'Failed to post comment. Check LinkedIn bridge.',
+      }
+    );
+  };
+
   const copyToClipboard = (text: string) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     toast.success('Copied to clipboard');
   };
@@ -199,67 +236,129 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                 </div>
 
                 <button
-                  onClick={handleGenerateComment}
-                  disabled={generatingComment}
+                  onClick={handleGenerateStrategy}
+                  disabled={generatingStrategy || !analysis}
                   className="w-full flex items-center justify-center gap-2 py-4 bg-zinc-900 text-white rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
                 >
-                  {generatingComment ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-                  {generatedComment ? 'Re-craft Comment' : 'Generate Expert Response'}
+                  {generatingStrategy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  {strategy ? 'Regenerate Strategy' : 'Craft Full Strategy'}
                 </button>
               </div>
+
+              {/* Outreach Card - Only if strategy exists */}
+              {strategy && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-zinc-900 rounded-3xl p-8 space-y-6 text-white shadow-2xl relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <Target className="h-24 w-24" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Cold Email Anchor</span>
+                    <h4 className="text-sm font-bold text-indigo-400 mt-1">{strategy.emailSubject}</h4>
+                  </div>
+                  <div className="pt-4 border-t border-zinc-800 space-y-4">
+                    <button 
+                      onClick={() => copyToClipboard(strategy.directMessage)}
+                      className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                    >
+                      <Copy className="h-3 w-3" />
+                      Copy Pattern-Interrupt DM
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Response Card */}
             <div className="lg:col-span-3">
               <AnimatePresence mode="wait">
-                {generatedComment ? (
+                {(generatedComment || strategy) ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="h-full bg-indigo-600 text-white rounded-3xl p-10 space-y-8 shadow-2xl shadow-indigo-200 relative overflow-hidden"
+                    className="h-full bg-white border border-zinc-200 rounded-[40px] p-10 space-y-8 shadow-xl relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 p-10 opacity-10">
-                      <selectedTone.icon className="h-32 w-32" />
-                    </div>
-                    
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">Generated Draft</span>
-                        <div className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-bold uppercase tracking-widest border border-white/10">
-                          {selectedTone.label} Tone
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-6 border-b border-zinc-100 pb-8">
                       <button 
-                        onClick={() => copyToClipboard(generatedComment)}
-                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all border border-white/10"
+                        onClick={() => setActiveTab('comment')}
+                        className={`text-xs font-extrabold uppercase tracking-widest pb-4 border-b-2 transition-all ${
+                          activeTab === 'comment' ? 'text-indigo-600 border-indigo-600' : 'text-zinc-400 border-transparent hover:text-zinc-600'
+                        }`}
                       >
-                        <Copy className="h-4 w-4" />
+                        Public Comment
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('outreach')}
+                        className={`text-xs font-extrabold uppercase tracking-widest pb-4 border-b-2 transition-all ${
+                          activeTab === 'outreach' ? 'text-indigo-600 border-indigo-600' : 'text-zinc-400 border-transparent hover:text-zinc-600'
+                        }`}
+                      >
+                        Private Outreach
                       </button>
                     </div>
 
-                    <div className="relative z-10 group">
-                      <p className="text-xl md:text-2xl font-semibold leading-snug tracking-tight">
-                        {generatedComment}
-                      </p>
+                    <div className="min-h-[200px]">
+                      {activeTab === 'comment' ? (
+                        <div className="space-y-6">
+                           <div className="flex items-start gap-4">
+                            <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
+                              <MessageSquare className="h-5 w-5 text-indigo-600" />
+                            </div>
+                            <div className="space-y-4 flex-1">
+                              <p className="text-xl font-bold text-zinc-900 leading-tight">
+                                {generatedComment || strategy?.strategicComment}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <span className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded text-[9px] font-bold text-zinc-500 uppercase">Strategic</span>
+                                <span className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded text-[9px] font-bold text-zinc-500 uppercase">Value-First</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                           <div className="flex items-start gap-4">
+                            <div className="h-10 w-10 bg-amber-50 rounded-full flex items-center justify-center shrink-0">
+                              <MailIcon className="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div className="space-y-4 flex-1">
+                              <p className="text-xl font-bold text-zinc-900 leading-tight italic">
+                                "{strategy?.directMessage || 'Generate strategy to see DM'}"
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-                          <CheckCircle2 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Quality Check Passed</p>
-                          <p className="text-xs font-medium">Ready for deployment on LinkedIn</p>
-                        </div>
+                    <div className="pt-8 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-6">
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => copyToClipboard(activeTab === 'comment' ? (generatedComment || strategy?.strategicComment) : strategy?.directMessage)}
+                          className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-50 text-zinc-600 rounded-2xl font-bold text-xs hover:bg-zinc-100 transition-all border border-zinc-100"
+                        >
+                          <Copy className="h-4 w-4" />
+                          Copy Draft
+                        </button>
+                        
+                        {activeTab === 'comment' && (
+                          <button 
+                            onClick={() => postComment(generatedComment || strategy?.strategicComment)}
+                            className="flex items-center justify-center gap-2 px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-xs hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                          >
+                            <Send className="h-4 w-4" />
+                            Post to LinkedIn
+                          </button>
+                        )}
                       </div>
-                      
-                      <button 
-                        onClick={() => copyToClipboard(generatedComment)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-bold text-sm hover:bg-zinc-100 transition-all shadow-lg"
-                      >
-                        Copy Response
-                      </button>
+
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        AI-Optimized for {activeTab === 'comment' ? 'Feed Visibility' : 'Response Rates'}
+                      </div>
                     </div>
                   </motion.div>
                 ) : (

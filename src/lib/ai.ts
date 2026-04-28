@@ -134,10 +134,56 @@ export async function analyzePostForLeads(postContent: string) {
     return {
       opportunityFound: false,
       reason: "Analysis timed out. Paste the full post text for a deeper creative audit.",
-      confidence: 0,
+      offset: 0,
       suggestedService: "General Outreach"
     };
   }
+}
+
+export async function generateResponseStrategy(audit: any, content: string) {
+  const prompt = `Based on this Creative Audit and the original Post Content, generate a multi-channel outreach strategy.
+
+  Audit: ${JSON.stringify(audit)}
+  Post: "${content}"
+
+  RULES:
+  1. STRATEGIC COMMENT: A public comment that adds value and subtly hints at your expertise. NO cliches like "Great post".
+  2. PATTERN-INTERRUPT DM: A private message that addresses the "Visual Debt" or "Technical Lag" found in the audit. 
+  3. EMAIL SUBJECT: A punchy, 3-word subject line for a cold email.
+
+  TONE: Direct, human, non-salesy.
+  
+  Return in JSON format.`;
+
+  const fetchWithRetry = async (retries = 2, delay = 1000): Promise<any> => {
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              strategicComment: { type: Type.STRING },
+              directMessage: { type: Type.STRING },
+              emailSubject: { type: Type.STRING }
+            },
+            required: ["strategicComment", "directMessage", "emailSubject"]
+          }
+        }
+      });
+      return JSON.parse(response.text);
+    } catch (error: any) {
+      if (retries > 0 && (error?.message?.includes('429') || error?.message?.includes('503'))) {
+        await new Promise(res => setTimeout(res, delay));
+        return fetchWithRetry(retries - 1, delay * 2);
+      }
+      throw error;
+    }
+  };
+
+  return await fetchWithRetry();
 }
 
 export interface Prospect {
@@ -150,6 +196,7 @@ export interface Prospect {
   linkedin_url: string;
   marketing_audit: string;
   confidence_score: number;
+  strategic_rationale: string;
 }
 
 export async function findProspects(niche: string, location: string): Promise<Prospect[]> {
@@ -173,11 +220,11 @@ export async function findProspects(niche: string, location: string): Promise<Pr
     5. Primary contact/decision maker name (realistic)
     6. A specific potential marketing/design need they likely have.
     7. A "Marketing Audit" summary (Max 20 words identifying a glaring gap like "Site is slow on mobile" or "SEO is missing for key terms").
-    8. A 0-100 confidence score.
+    8. A 0-100 confidence score based on "Creative Debt" (higher score means more obvious weaknesses).
     9. A realistic LinkedIn profile URL.
+    10. A "Strategic Rationale": One sentence explaining the business upside of targeting them now (e.g., "They just raised seed funding but their site looks like a template from 2018").
 
     STYLE GUIDE: Use direct, punchy language. No "I noticed that...", "It appears that...". Just the facts.
-    Example: "Hero section is cluttered. Hard to tell what they actually sell."
     
     Return the results as a valid JSON array.
   `;
@@ -202,7 +249,8 @@ export async function findProspects(niche: string, location: string): Promise<Pr
                 potential_need: { type: Type.STRING },
                 marketing_audit: { type: Type.STRING },
                 confidence_score: { type: Type.NUMBER },
-                linkedin_url: { type: Type.STRING }
+                linkedin_url: { type: Type.STRING },
+                strategic_rationale: { type: Type.STRING }
               }
             }
           }
