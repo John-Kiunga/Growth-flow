@@ -99,14 +99,20 @@ export async function analyzePostForLeads(postContent: string) {
               reason: { type: Type.STRING },
               confidence: { type: Type.NUMBER },
               suggestedService: { type: Type.STRING }
-            }
+            },
+            required: ["opportunityFound", "reason", "confidence", "suggestedService"]
           }
         }
       });
-      return JSON.parse(response.text);
+      const cleaned = cleanJsonResponse(response.text);
+      return JSON.parse(cleaned);
     } catch (error: any) {
-      console.warn(`Retry ${3 - retries} failed:`, error?.message);
-      if (retries > 0 && (error?.message?.includes('429') || error?.message?.includes('503') || error?.message?.includes('deadline'))) {
+      const isRetryable = error?.message?.includes('429') || 
+                          error?.message?.includes('503') || 
+                          error?.message?.includes('deadline') ||
+                          error?.message?.includes('JSON');
+
+      if (retries > 0 && isRetryable) {
         await new Promise(res => setTimeout(res, delay));
         return fetchWithRetry(currentPrompt, retries - 1, delay * 1.5);
       }
@@ -173,9 +179,14 @@ export async function generateResponseStrategy(audit: any, content: string) {
           }
         }
       });
-      return JSON.parse(response.text);
+      const cleaned = cleanJsonResponse(response.text);
+      return JSON.parse(cleaned);
     } catch (error: any) {
-      if (retries > 0 && (error?.message?.includes('429') || error?.message?.includes('503'))) {
+      const isRetryable = error?.message?.includes('429') || 
+                          error?.message?.includes('503') || 
+                          error?.message?.includes('JSON');
+
+      if (retries > 0 && isRetryable) {
         await new Promise(res => setTimeout(res, delay));
         return fetchWithRetry(retries - 1, delay * 2);
       }
@@ -199,41 +210,64 @@ export interface Prospect {
   strategic_rationale: string;
 }
 
+function cleanJsonResponse(text: string): string {
+  // Remove markdown code blocks if present
+  let cleaned = text.replace(/```json\n?|```/g, '').trim();
+  
+  // Find the first '[' or '{' and the last ']' or '}'
+  const firstBracket = cleaned.indexOf('[');
+  const firstBrace = cleaned.indexOf('{');
+  const start = (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) ? firstBracket : firstBrace;
+  
+  const lastBracket = cleaned.lastIndexOf(']');
+  const lastBrace = cleaned.lastIndexOf('}');
+  const end = (lastBracket !== -1 && (lastBrace === -1 || lastBracket > lastBrace)) ? lastBracket : lastBrace;
+
+  if (start !== -1 && end !== -1 && end > start) {
+    cleaned = cleaned.substring(start, end + 1);
+  }
+
+  return cleaned;
+}
+
 export async function findProspects(niche: string, location: string): Promise<Prospect[]> {
   const prompt = `
-    Find 10-12 real or highly realistic B2B prospects for an agency looking to sell creative services (Design, SEO, Maintenance).
+    Find 10-12 REAL B2B prospects for an agency looking to sell creative services (Design, SEO, Maintenance).
+    Use Google Search to find actual businesses in the specified niche and location.
     
     TARGETING RULES:
-    1. Focus on Startups (Series A/B), Seed-stage companies, and high-growth SMBs.
-    2. Focus on smaller localized markets or niche players within the industry.
-    3. AVOID massive corporations, household names, or Fortune 500 companies.
-    4. Companies should have 5-50 employees and a clear need for external creative help.
+    1. Focus on REAL Startups (Series A/B), Seed-stage companies, and high-growth SMBs.
+    2. Focus on REAL localized markets or niche players within the industry.
+    3. AVOID massive corporations like Google, Meta, or Fortune 500 companies.
+    4. Companies should have a clear, verifiable existence.
 
     Niche: ${niche}
     Location: ${location}
 
     For each prospect, provide:
-    1. Company Name
-    2. Website URL (realistic)
+    1. Company Name (Official)
+    2. Website URL (Verified)
     3. Industry
     4. Location
-    5. Primary contact/decision maker name (realistic)
-    6. A specific potential marketing/design need they likely have.
-    7. A "Marketing Audit" summary (Max 20 words identifying a glaring gap like "Site is slow on mobile" or "SEO is missing for key terms").
-    8. A 0-100 confidence score based on "Creative Debt" (higher score means more obvious weaknesses).
-    9. A realistic LinkedIn profile URL.
-    10. A "Strategic Rationale": One sentence explaining the business upside of targeting them now (e.g., "They just raised seed funding but their site looks like a template from 2018").
+    5. Primary contact/decision maker name (Real person if possible, or very realistic)
+    6. A specific potential marketing/design need based on their current web presence.
+    7. A "Marketing Audit" summary (Max 20 words identifying a glaring gap).
+    8. A 0-100 confidence score based on "Creative Debt".
+    9. A VERIFIED LinkedIn profile URL (must be a real, accessible URL like https://www.linkedin.com/in/username - ABSOLUTELY NO HALLUCINATIONS).
+    10. A "Strategic Rationale": One sentence explaining the business upside of targeting them right now based on recent news or their specific market position.
 
-    STYLE GUIDE: Use direct, punchy language. No "I noticed that...", "It appears that...". Just the facts.
+    SEARCH INTENT: You are a high-performance sales scouter. You must return REAL companies and REAL people that actually exist in the world today.
     
     Return the results as a valid JSON array.
   `;
 
-  const fetchWithRetry = async (retries = 2, delay = 1000): Promise<Prospect[]> => {
+  const fetchWithRetry = async (retries = 3, delay = 2000): Promise<Prospect[]> => {
     try {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: prompt,
+        tools: [{ googleSearch: {} }],
+        toolConfig: { includeServerSideToolInvocations: true },
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -251,14 +285,32 @@ export async function findProspects(niche: string, location: string): Promise<Pr
                 confidence_score: { type: Type.NUMBER },
                 linkedin_url: { type: Type.STRING },
                 strategic_rationale: { type: Type.STRING }
-              }
+              },
+              required: ["company", "website", "industry", "location", "name", "potential_need", "marketing_audit", "confidence_score", "linkedin_url", "strategic_rationale"]
             }
           }
         }
       });
-      return JSON.parse(response.text);
+
+      const cleanedText = cleanJsonResponse(response.text);
+      try {
+        return JSON.parse(cleanedText);
+      } catch (parseError) {
+        if (retries > 0) {
+          console.warn("JSON Parse failed, retrying...", parseError);
+          await new Promise(res => setTimeout(res, delay));
+          return fetchWithRetry(retries - 1, delay * 1.5);
+        }
+        throw parseError;
+      }
     } catch (error: any) {
-      if (retries > 0 && (error?.message?.includes('429') || error?.message?.includes('503'))) {
+      const isRetryable = error?.message?.includes('429') || 
+                          error?.message?.includes('503') || 
+                          error?.message?.includes('deadline') ||
+                          error?.message?.includes('JSON') ||
+                          error?.message?.includes('end of JSON');
+
+      if (retries > 0 && isRetryable) {
         await new Promise(res => setTimeout(res, delay));
         return fetchWithRetry(retries - 1, delay * 2);
       }
@@ -269,7 +321,7 @@ export async function findProspects(niche: string, location: string): Promise<Pr
   try {
     return await fetchWithRetry();
   } catch (error) {
-    console.error("Prospecting error:", error);
+    console.error("Prospecting error final failure:", error);
     return [];
   }
 }

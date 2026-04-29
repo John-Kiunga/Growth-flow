@@ -5,8 +5,6 @@ import { Shield, ArrowRight, Loader2, Disc, Chrome, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'motion/react';
 
-const ADMIN_EMAIL = 'jkyunger@gmail.com';
-
 export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [restricted, setRestricted] = useState(false);
@@ -22,13 +20,7 @@ export default function Auth() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
-        await auth.signOut();
-        setRestricted(true);
-        toast.error("Account not authorized for this workspace.");
-      } else {
-        toast.success(`Welcome back, ${user.displayName?.split(' ')[0] || 'Member'}.`);
-      }
+      toast.success(`Welcome back, ${user.displayName?.split(' ')[0] || 'Member'}.`);
     } catch (error: any) {
       console.error("Auth error:", error);
       toast.error('Authentication failed. Please try again.');
@@ -38,7 +30,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-6 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-4 md:p-6 font-sans">
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       </div>
@@ -49,14 +41,14 @@ export default function Auth() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-md relative"
       >
-        <div className="bg-white rounded-[40px] p-12 border border-zinc-200 shadow-2xl shadow-indigo-100/50 relative overflow-hidden">
-          <div className="flex flex-col items-center mb-12">
-            <div className="h-20 w-20 bg-indigo-600 rounded-3xl flex items-center justify-center mb-8 shadow-2xl shadow-indigo-200">
-              <Zap className="text-white h-10 w-10" />
+        <div className="bg-white rounded-[32px] md:rounded-[40px] p-8 md:p-12 border border-zinc-200 shadow-2xl shadow-indigo-100/50 relative overflow-hidden">
+          <div className="flex flex-col items-center mb-10 md:mb-12">
+            <div className="h-16 w-16 md:h-20 md:w-20 bg-indigo-600 rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 shadow-2xl shadow-indigo-200">
+              <Zap className="text-white h-8 w-8 md:h-10 md:w-10" />
             </div>
             <div className="text-center space-y-2">
-              <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900">GrowthFlow</h1>
-              <p className="text-zinc-500 text-sm font-medium">Professional Lead Management Workspace</p>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900">GrowthFlow</h1>
+              <p className="text-zinc-500 text-xs md:text-sm font-medium">Professional Lead Management Workspace</p>
             </div>
           </div>
 
@@ -92,7 +84,7 @@ export default function Auth() {
               </button>
               
               <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest text-center">
-                Requires authorized workspace credentials
+                Secure access via your Google account
               </p>
             </div>
           </div>

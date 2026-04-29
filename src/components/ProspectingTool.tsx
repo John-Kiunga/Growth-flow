@@ -119,18 +119,18 @@ export function ProspectingTool() {
 
   return (
     <div className="space-y-8 pb-20">
-      <div className="bg-white rounded-[40px] p-10 border border-zinc-200 shadow-sm relative overflow-hidden">
-        <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
+      <div className="bg-white rounded-2xl md:rounded-[40px] p-6 md:p-10 border border-zinc-200 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none hidden md:block">
           <Search className="h-40 w-40 text-zinc-900" />
         </div>
         
         <div className="relative z-10 max-w-2xl">
-          <h2 className="text-3xl font-extrabold tracking-tight text-zinc-900 mb-2">Smart B2B Prospecting</h2>
-          <p className="text-zinc-500 font-medium mb-8">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 mb-2">Smart B2B Prospecting</h2>
+          <p className="text-zinc-500 font-medium mb-6 md:mb-8 text-sm md:text-base">
             Identify high-intent leads using real-time market intelligence and audit patterns.
           </p>
 
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+          <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
               <input 
@@ -174,10 +174,10 @@ export function ProspectingTool() {
             {results.map((prospect, idx) => (
               <div 
                 key={idx}
-                className="bg-white border border-zinc-200 rounded-[32px] overflow-hidden hover:border-indigo-200 transition-all group shadow-sm"
+                className="bg-white border border-zinc-200 rounded-2xl md:rounded-[32px] overflow-hidden hover:border-indigo-200 transition-all group shadow-sm"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_2fr_1fr] divide-x divide-zinc-100">
-                  <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_2fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-zinc-100">
+                  <div className="p-6 md:p-8 space-y-6">
                     <div className="flex items-start justify-between">
                       <div className="h-14 w-14 bg-zinc-50 rounded-2xl flex items-center justify-center border border-zinc-100">
                         <Building2 className="h-7 w-7 text-zinc-400" />
@@ -201,7 +201,7 @@ export function ProspectingTool() {
                     </div>
                   </div>
 
-                  <div className="p-8 bg-zinc-50/30 flex flex-col justify-center space-y-6">
+                  <div className="p-6 md:p-8 bg-zinc-50/30 flex flex-col justify-center space-y-6">
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <FileText className="h-4 w-4 text-indigo-600" />
@@ -220,9 +220,9 @@ export function ProspectingTool() {
                         <p className="text-sm font-extrabold text-zinc-900">{prospect.name}</p>
                       </div>
                       <a 
-                        href={prospect.linkedin_url} 
-                        target="_blank" 
-                        rel="noreferrer"
+                        href={prospect.linkedin_url.startsWith('http') ? prospect.linkedin_url : `https://${prospect.linkedin_url}`} 
+                        target="_top" 
+                        rel="noreferrer noopener"
                         className="ml-auto p-2 text-zinc-300 hover:text-indigo-600 transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
@@ -271,7 +271,7 @@ export function ProspectingTool() {
                     </div>
                   </div>
 
-                  <div className="p-8 flex flex-col items-center justify-center gap-4 bg-white">
+                  <div className="p-6 md:p-8 flex flex-col items-center justify-center gap-4 bg-white">
                     <button 
                       onClick={() => handleAddLead(prospect, idx)}
                       disabled={addingIds.has(idx)}

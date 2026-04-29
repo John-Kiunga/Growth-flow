@@ -59,24 +59,24 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-10 max-w-5xl mx-auto space-y-16 pb-32">
+    <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-12 md:space-y-16 pb-32">
       <div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900">Settings & Integrations</h1>
-        <p className="text-zinc-500 font-medium mt-2">Manage your workspace configuration and communication frameworks.</p>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900">Settings & Integrations</h1>
+        <p className="text-zinc-500 font-medium mt-2 text-sm md:text-base">Manage your workspace configuration and communication frameworks.</p>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-10 md:space-y-12">
         {/* LinkedIn Integration */}
-        <section className="space-y-8">
+        <section className="space-y-6 md:space-y-8">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+            <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
               <Linkedin className="h-5 w-5 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900">LinkedIn Connectivity</h2>
+            <h2 className="text-lg md:text-xl font-bold tracking-tight text-zinc-900">LinkedIn Connectivity</h2>
           </div>
           
-          <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
-            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
+          <div className="p-6 md:p-10 bg-white border border-zinc-200 rounded-2xl md:rounded-[40px] shadow-sm relative overflow-hidden">
+            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none hidden md:block">
               <Linkedin className="h-40 w-40 text-zinc-900" />
             </div>
 
@@ -186,23 +186,18 @@ export default function Settings() {
         </section>
 
         {/* Hunter.io Integration */}
-        <section className="space-y-8">
+        <section className="space-y-6 md:space-y-8">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100 shrink-0">
               <Mail className="h-5 w-5 text-indigo-600" />
             </div>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold tracking-tight text-zinc-900">Email Discovery (Hunter.io)</h2>
-              {systemStatus.hunter && (
-                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase tracking-wider">
-                  System Configured
-                </span>
-              )}
+              <h2 className="text-lg md:text-xl font-bold tracking-tight text-zinc-900">Email Discovery</h2>
             </div>
           </div>
           
-          <div className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm relative overflow-hidden">
-            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none">
+          <div className="p-6 md:p-10 bg-white border border-zinc-200 rounded-2xl md:rounded-[40px] shadow-sm relative overflow-hidden">
+            <div className="absolute right-0 top-0 p-10 opacity-[0.03] pointer-events-none hidden md:block">
               <Zap className="h-40 w-40 text-zinc-900" />
             </div>
 
@@ -259,15 +254,15 @@ export default function Settings() {
         </section>
 
         {/* Templates */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between">
+        <section className="space-y-6 md:space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+              <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100 shrink-0">
                 <MessageSquare className="h-5 w-5 text-indigo-600" />
               </div>
-              <h2 className="text-xl font-bold tracking-tight text-zinc-900">Communication Templates</h2>
+              <h2 className="text-lg md:text-xl font-bold tracking-tight text-zinc-900">Communication Templates</h2>
             </div>
-            <button className="px-6 py-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600 flex items-center gap-2 hover:bg-zinc-50 transition-all shadow-sm">
+            <button className="w-full sm:w-auto px-6 py-3 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600 flex items-center justify-center gap-2 hover:bg-zinc-50 transition-all shadow-sm">
               <Plus className="h-4 w-4" />
               New Template
             </button>
@@ -275,13 +270,13 @@ export default function Settings() {
 
           <div className="grid grid-cols-1 gap-6">
             {templates.map((template, idx) => (
-              <div key={idx} className="p-10 bg-white border border-zinc-200 rounded-[40px] shadow-sm hover:border-indigo-200 transition-all group">
-                <div className="flex justify-between items-start mb-8">
+              <div key={idx} className="p-6 md:p-10 bg-white border border-zinc-200 rounded-2xl md:rounded-[40px] shadow-sm hover:border-indigo-200 transition-all group">
+                <div className="flex justify-between items-start mb-6 md:mb-8">
                   <div>
                     <span className="text-[9px] font-extrabold uppercase tracking-[0.3em] text-indigo-600 mb-2 inline-block bg-indigo-50 px-3 py-1 rounded-full">Template 0{idx + 1}</span>
-                    <h3 className="text-2xl font-extrabold tracking-tight text-zinc-900">{template.name}</h3>
+                    <h3 className="text-xl md:text-2xl font-extrabold tracking-tight text-zinc-900">{template.name}</h3>
                   </div>
-                  <button className="p-3 rounded-2xl text-zinc-300 hover:text-zinc-900 hover:bg-zinc-50 transition-all border border-transparent hover:border-zinc-100">
+                  <button className="p-2 md:p-3 rounded-2xl text-zinc-300 hover:text-zinc-900 hover:bg-zinc-50 transition-all border border-transparent hover:border-zinc-100">
                     <RefreshCcw className="h-4 w-4" />
                   </button>
                 </div>
@@ -321,14 +316,14 @@ export default function Settings() {
         </section>
 
         {/* Global Save */}
-        <div className="pt-12 border-t border-zinc-200 flex justify-end">
+        <div className="pt-8 md:pt-12 border-t border-zinc-200 flex justify-center sm:justify-end">
           <button 
             onClick={handleSave}
-            className="group flex items-center gap-4 px-10 py-5 bg-zinc-900 text-white rounded-3xl font-extrabold text-sm shadow-2xl shadow-zinc-200 hover:bg-zinc-800 transition-all hover:scale-[1.02]"
+            className="w-full sm:w-auto group flex items-center justify-center gap-4 px-8 md:px-10 py-4 md:py-5 bg-zinc-900 text-white rounded-2xl md:rounded-3xl font-extrabold text-sm shadow-2xl shadow-zinc-200 hover:bg-zinc-800 transition-all hover:scale-[1.02]"
           >
             <Save className="h-5 w-5" />
-            Update Workspace Settings
-            <ArrowRight className="h-4 w-4 opacity-40 group-hover:translate-x-1 transition-transform" />
+            Update Settings
+            <ArrowRight className="h-4 w-4 opacity-40 group-hover:translate-x-1 transition-transform hidden sm:block" />
           </button>
         </div>
       </div>

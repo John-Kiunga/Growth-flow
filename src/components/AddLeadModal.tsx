@@ -76,39 +76,39 @@ export function AddLeadModal({ isOpen, onClose, onAdd }: AddLeadModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white border border-zinc-200 rounded-[32px] p-10 z-[101] shadow-2xl overflow-hidden"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] md:w-full max-w-lg bg-white border border-zinc-200 rounded-3xl md:rounded-[32px] p-6 md:p-10 z-[101] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-10">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center">
-                  <Target className="h-6 w-6 text-indigo-600" />
+            <div className="flex justify-between items-center mb-6 md:mb-10">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="h-10 w-10 md:h-12 md:w-12 bg-indigo-50 border border-indigo-100 rounded-xl md:rounded-2xl flex items-center justify-center">
+                  <Target className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-extrabold tracking-tight text-zinc-900">New Growth Record</h3>
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Growth Acquisition Protocol</p>
+                  <h3 className="text-lg md:text-xl font-extrabold tracking-tight text-zinc-900">New Growth Record</h3>
+                  <p className="text-[9px] md:text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Growth Acquisition Protocol</p>
                 </div>
               </div>
               <button 
                 onClick={onClose} 
-                className="p-3 rounded-xl hover:bg-zinc-50 transition-all text-zinc-300 hover:text-zinc-900"
+                className="p-2 md:p-3 rounded-xl hover:bg-zinc-50 transition-all text-zinc-300 hover:text-zinc-900"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="col-span-2 space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="sm:col-span-2 space-y-2">
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Contact Person</label>
                   <div className="relative">
-                    <User className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
+                    <User className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-300" />
                     <input
                       type="text"
                       placeholder="e.g. Alex Rivera"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full pl-12 pr-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
+                      className="w-full pl-10 md:pl-12 pr-6 py-3 md:py-4 bg-zinc-50 border border-zinc-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
                     />
                   </div>
                 </div>
@@ -116,14 +116,14 @@ export function AddLeadModal({ isOpen, onClose, onAdd }: AddLeadModalProps) {
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Company</label>
                   <div className="relative">
-                    <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
+                    <Building2 className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-300" />
                     <input
                       type="text"
                       placeholder="e.g. Studio Flow"
                       required
                       value={formData.company}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="w-full pl-12 pr-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
+                      className="w-full pl-10 md:pl-12 pr-6 py-3 md:py-4 bg-zinc-50 border border-zinc-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
                     />
                   </div>
                 </div>
@@ -133,7 +133,7 @@ export function AddLeadModal({ isOpen, onClose, onAdd }: AddLeadModalProps) {
                   <select
                     value={formData.opportunity_type}
                     onChange={(e) => setFormData({ ...formData, opportunity_type: e.target.value as OpportunityType })}
-                    className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 appearance-none cursor-pointer"
+                    className="w-full px-4 md:px-5 py-3 md:py-4 bg-zinc-50 border border-zinc-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 appearance-none cursor-pointer"
                   >
                     {opportunities.map(op => (
                       <option key={op} value={op}>{op}</option>
@@ -141,16 +141,16 @@ export function AddLeadModal({ isOpen, onClose, onAdd }: AddLeadModalProps) {
                   </select>
                 </div>
 
-                <div className="col-span-2 space-y-2">
+                <div className="sm:col-span-2 space-y-2">
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Digital Domain</label>
                   <div className="relative">
-                    <Globe className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
+                    <Globe className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-300" />
                     <input
                       type="text"
                       placeholder="e.g. studioflow.io"
                       value={formData.website}
                       onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      className="w-full pl-12 pr-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
+                      className="w-full pl-10 md:pl-12 pr-6 py-3 md:py-4 bg-zinc-50 border border-zinc-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all font-bold text-sm text-zinc-900 placeholder:text-zinc-300"
                     />
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export function AddLeadModal({ isOpen, onClose, onAdd }: AddLeadModalProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-xl shadow-indigo-100"
+                  className="w-full py-4 md:py-5 bg-indigo-600 text-white rounded-xl md:rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-xl shadow-indigo-100"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

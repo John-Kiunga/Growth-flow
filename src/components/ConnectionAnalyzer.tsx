@@ -12,7 +12,8 @@ import {
   AlertCircle,
   TrendingUp,
   Mail,
-  Linkedin
+  Linkedin,
+  ExternalLink
 } from 'lucide-react';
 import { findProspects, Prospect } from '../lib/ai';
 import toast from 'react-hot-toast';
@@ -137,10 +138,22 @@ export function ConnectionAnalyzer() {
                     </div>
                   </div>
 
-                  <div className="space-y-1 mb-4">
-                    <h4 className="text-sm font-bold text-zinc-900">{conn.name}</h4>
-                    <p className="text-xs text-zinc-500 font-medium">{conn.company}</p>
-                  </div>
+                    <div className="space-y-1 mb-4">
+                      <h4 className="text-sm font-bold text-zinc-900">{conn.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-zinc-500 font-medium">{conn.company}</p>
+                        <a 
+                          href={conn.linkedin_url.startsWith('http') ? conn.linkedin_url : `https://${conn.linkedin_url}`} 
+                          target="_top" 
+                          rel="noreferrer noopener"
+                          className="p-1 hover:bg-zinc-100 rounded-md transition-colors group/link"
+                          title="View LinkedIn Profile"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="h-3 w-3 text-zinc-300 group-hover/link:text-indigo-500" />
+                        </a>
+                      </div>
+                    </div>
 
                   <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 mb-6 group-hover:bg-indigo-50/30 transition-colors">
                     <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Strategic Rationale</p>

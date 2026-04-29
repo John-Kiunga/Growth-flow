@@ -61,7 +61,7 @@ export function LeadTable({ leads, onStatusUpdate, onSelectLead }: LeadTableProp
                   {lead.website && (
                     <a 
                       href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
-                      target="_blank" 
+                      target="_top" 
                       rel="noopener noreferrer"
                       className="text-[10px] text-indigo-400 hover:text-indigo-600 transition-colors flex items-center gap-1 font-bold tracking-tight"
                     >

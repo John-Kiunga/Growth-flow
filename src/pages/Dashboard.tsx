@@ -210,84 +210,88 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-zinc-50/50 text-zinc-900 selection:bg-indigo-600/10 pb-20">
-      <div className="max-w-7xl mx-auto px-8 py-10 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10 space-y-8 md:space-y-12">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pt-8">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-white border border-zinc-200 rounded-2xl flex items-center justify-center shadow-sm">
-                <Zap className="h-6 w-6 text-indigo-600" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8 pt-4 md:pt-8">
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="h-10 w-10 md:h-12 md:w-12 bg-white border border-zinc-200 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                <Zap className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
               </div>
-              <div className="space-y-1">
-                <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">Growth Dashboard</h1>
-                <p className="text-zinc-500 text-xs font-medium uppercase tracking-widest">Client Campaign: {auth.currentUser?.displayName || auth.currentUser?.email}</p>
+              <div className="space-y-0.5 md:space-y-1">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900">Growth Dashboard</h1>
+                <p className="text-zinc-500 text-[10px] md:text-xs font-medium uppercase tracking-widest truncate max-w-[200px] md:max-w-none">Client Campaign: {auth.currentUser?.displayName || auth.currentUser?.email}</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex p-1 bg-zinc-200/50 border border-zinc-200/50 rounded-xl">
-              <button 
-                onClick={() => setActiveTab('pipeline')}
-                className={cn(
-                  "px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
-                  activeTab === 'pipeline' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-                )}
-              >
-                Lead Pipeline
-              </button>
-              <button 
-                onClick={() => setActiveTab('prospecting')}
-                className={cn(
-                  "px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
-                  activeTab === 'prospecting' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-                )}
-              >
-                Smart Prospecting
-              </button>
-              <button 
-                onClick={() => setActiveTab('linkedin')}
-                className={cn(
-                  "px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
-                  activeTab === 'linkedin' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-                )}
-              >
-                LinkedIn Assistant
-              </button>
-              <button 
-                onClick={() => setActiveTab('network')}
-                className={cn(
-                  "px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
-                  activeTab === 'network' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-                )}
-              >
-                Connection Audit
-              </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div className="flex p-1 bg-zinc-200/50 border border-zinc-200/50 rounded-xl overflow-x-auto no-scrollbar">
+              <div className="flex min-w-max">
+                <button 
+                  onClick={() => setActiveTab('pipeline')}
+                  className={cn(
+                    "px-3 md:px-4 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
+                    activeTab === 'pipeline' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                  )}
+                >
+                  Pipeline
+                </button>
+                <button 
+                  onClick={() => setActiveTab('prospecting')}
+                  className={cn(
+                    "px-3 md:px-4 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
+                    activeTab === 'prospecting' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                  )}
+                >
+                  Prospecting
+                </button>
+                <button 
+                  onClick={() => setActiveTab('linkedin')}
+                  className={cn(
+                    "px-3 md:px-4 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
+                    activeTab === 'linkedin' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                  )}
+                >
+                  LinkedIn
+                </button>
+                <button 
+                  onClick={() => setActiveTab('network')}
+                  className={cn(
+                    "px-3 md:px-4 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-widest rounded-lg transition-all",
+                    activeTab === 'network' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                  )}
+                >
+                  Audit
+                </button>
+              </div>
             </div>
 
-            <div className="w-px h-6 bg-zinc-200" />
+            <div className="hidden sm:block w-px h-6 bg-zinc-200" />
             
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleCsvUpload} 
-              accept=".csv" 
-              className="hidden" 
-            />
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="p-3 text-zinc-400 hover:text-zinc-600 bg-white border border-zinc-200 rounded-xl transition-all shadow-sm"
-              title="Bulk Import Leads"
-            >
-              <Upload className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
-            >
-              <Plus className="h-4 w-4" />
-              Add New Lead
-            </button>
+            <div className="flex items-center gap-2">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleCsvUpload} 
+                accept=".csv" 
+                className="hidden" 
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 sm:flex-none p-3 text-zinc-400 hover:text-zinc-600 bg-white border border-zinc-200 rounded-xl transition-all shadow-sm flex items-center justify-center"
+                title="Bulk Import Leads"
+              >
+                <Upload className="h-5 w-5 md:h-5 md:w-5" />
+              </button>
+              <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex-3 sm:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
+              >
+                <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                New Lead
+              </button>
+            </div>
           </div>
         </div>
 
@@ -298,10 +302,10 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-12"
+              className="space-y-8 md:space-y-12"
             >
               {/* Performance Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {[
                   { label: 'Total Leads', value: totalLeads, unit: 'Portfolio', trend: 'STABLE', color: 'text-indigo-600', bg: 'bg-indigo-50' },
                   { label: 'Active Prospects', value: leads.filter(l => l.status === 'Prospect').length, unit: 'Identified', trend: 'GROWING', color: 'text-sky-600', bg: 'bg-sky-50' },
@@ -310,68 +314,70 @@ export default function Dashboard() {
                 ].map((stat, i) => (
                   <div 
                     key={i} 
-                    className="bg-white border border-zinc-200 p-8 rounded-3xl relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-white border border-zinc-200 p-6 md:p-8 rounded-3xl relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-3">{stat.label}</p>
+                    <p className="text-[9px] md:text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-3">{stat.label}</p>
                     <div className="flex items-baseline gap-2">
-                      <span className={cn("text-3xl font-extrabold tracking-tight", stat.color)}>{stat.value}</span>
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{stat.unit}</span>
+                      <span className={cn("text-2xl md:text-3xl font-extrabold tracking-tight", stat.color)}>{stat.value}</span>
+                      <span className="text-[9px] md:text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{stat.unit}</span>
                     </div>
                     <div className="mt-4 flex items-center gap-2">
                       <div className={cn("h-1.5 w-1.5 rounded-full bg-current", stat.color, "animate-pulse")} />
-                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{stat.trend}</span>
+                      <span className="text-[8px] md:text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{stat.trend}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Pipeline Interface */}
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="relative w-full max-w-xl">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
+                    <Search className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-300" />
                     <input 
                       type="text"
-                      placeholder="Search pipeline, companies, or industries..."
+                      placeholder="Search pipeline..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-14 pr-6 py-4 bg-white border border-zinc-200 rounded-3xl text-sm font-medium focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all placeholder:text-zinc-300"
+                      className="w-full pl-11 md:pl-14 pr-6 py-3 md:py-4 bg-white border border-zinc-200 rounded-2xl md:rounded-3xl text-sm font-medium focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all placeholder:text-zinc-300"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={seedMockData}
-                      className="px-4 py-2 text-[10px] font-bold text-indigo-600/60 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em] border border-indigo-200 rounded-lg"
+                      className="px-3 py-2 text-[9px] md:text-[10px] font-bold text-indigo-600/60 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em] border border-indigo-200 rounded-lg"
                     >
-                      Seed Demo Data
+                      Seed Data
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-white border border-zinc-200 rounded-[32px] overflow-hidden shadow-sm">
-                  {leads.length > 0 ? (
-                    <LeadTable 
-                      leads={filteredLeads} 
-                      onStatusUpdate={handleStatusUpdate}
-                      onSelectLead={(lead) => setSelectedLead(lead)}
-                    />
-                  ) : (
-                    <div className="p-24 flex flex-col items-center text-center space-y-6">
-                      <div className="h-24 w-24 bg-zinc-50 rounded-full flex items-center justify-center border border-zinc-100">
-                        <Database className="h-10 w-10 text-zinc-300" />
+                <div className="bg-white border border-zinc-200 rounded-2xl md:rounded-[32px] overflow-hidden shadow-sm overflow-x-auto">
+                  <div className="min-w-[800px] md:min-w-full">
+                    {leads.length > 0 ? (
+                      <LeadTable 
+                        leads={filteredLeads} 
+                        onStatusUpdate={handleStatusUpdate}
+                        onSelectLead={(lead) => setSelectedLead(lead)}
+                      />
+                    ) : (
+                      <div className="p-12 md:p-24 flex flex-col items-center text-center space-y-6">
+                        <div className="h-16 w-16 md:h-24 md:w-24 bg-zinc-50 rounded-full flex items-center justify-center border border-zinc-100">
+                          <Database className="h-8 w-8 md:h-10 md:w-10 text-zinc-300" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-lg md:text-xl font-bold text-zinc-900">Your pipeline is empty</h3>
+                          <p className="text-xs md:text-sm text-zinc-500 max-w-[250px] md:max-w-sm">No leads identified yet. Start by adding a lead manually or importing your CSV file.</p>
+                        </div>
+                        <button 
+                          onClick={() => setIsAddModalOpen(true)}
+                          className="px-8 py-3 md:px-10 md:py-4 bg-zinc-900 text-white font-bold text-xs md:text-sm rounded-xl md:rounded-2xl hover:scale-105 transition-transform shadow-xl shadow-zinc-200"
+                        >
+                          Add Your First Lead
+                        </button>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-zinc-900">Your pipeline is empty</h3>
-                        <p className="text-sm text-zinc-500 max-w-sm">No leads identified yet. Start by adding a lead manually or importing your CSV file.</p>
-                      </div>
-                      <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="px-10 py-4 bg-zinc-900 text-white font-bold text-sm rounded-2xl hover:scale-105 transition-transform shadow-xl shadow-zinc-200"
-                      >
-                        Add Your First Lead
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </motion.div>

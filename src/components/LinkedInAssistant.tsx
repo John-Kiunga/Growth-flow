@@ -125,27 +125,27 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
   return (
     <div className="space-y-8">
       {/* Input Section */}
-      <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100">
-            <TrendingUp className="h-6 w-6 text-indigo-600" />
+      <div className="bg-white rounded-2xl md:rounded-3xl border border-zinc-200 shadow-sm p-6 md:p-8 space-y-6">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="h-10 w-10 md:h-12 md:w-12 bg-indigo-50 rounded-xl md:rounded-2xl flex items-center justify-center border border-indigo-100">
+            <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">LinkedIn Engagement Assistant</h3>
-            <p className="text-sm text-zinc-500">Analyze posts and generate high-value comments in seconds.</p>
+            <h3 className="text-base md:text-lg font-bold text-zinc-900 tracking-tight">LinkedIn Engagement Assistant</h3>
+            <p className="text-[11px] md:text-sm text-zinc-500">Analyze posts and generate high-value comments in seconds.</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between px-2">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Post Content or Link</label>
-            <span className="text-[10px] text-zinc-300 font-medium">Paste the full text or content summary</span>
+            <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Post Content or Link</label>
+            <span className="text-[9px] text-zinc-300 font-medium hidden md:inline">Paste the full text or content summary</span>
           </div>
           <textarea
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
             placeholder="What should we respond to?"
-            className="w-full h-40 bg-zinc-50 border border-zinc-100 rounded-2xl p-6 text-sm text-zinc-700 placeholder:text-zinc-300 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all resize-none shadow-inner"
+            className="w-full h-32 md:h-40 bg-zinc-50 border border-zinc-100 rounded-2xl p-4 md:p-6 text-sm text-zinc-700 placeholder:text-zinc-300 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 outline-none transition-all resize-none shadow-inner"
           />
         </div>
 
@@ -200,8 +200,8 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
             className="grid grid-cols-1 lg:grid-cols-5 gap-8"
           >
             {/* Intel Card */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white rounded-3xl border border-zinc-200 p-8 space-y-6 shadow-sm">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
+              <div className="bg-white rounded-2xl md:rounded-3xl border border-zinc-200 p-6 md:p-8 space-y-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {analyzing && <Loader2 className="h-3 w-3 animate-spin text-indigo-600" />}
@@ -279,7 +279,7 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="h-full bg-white border border-zinc-200 rounded-[40px] p-10 space-y-8 shadow-xl relative overflow-hidden"
+                    className="h-full bg-white border border-zinc-200 rounded-2xl md:rounded-[40px] p-6 md:p-10 space-y-6 md:space-y-8 shadow-xl relative overflow-hidden"
                   >
                     <div className="flex items-center gap-6 border-b border-zinc-100 pb-8">
                       <button 
@@ -300,15 +300,15 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                       </button>
                     </div>
 
-                    <div className="min-h-[200px]">
+                    <div className="min-h-[150px] md:min-h-[200px]">
                       {activeTab === 'comment' ? (
                         <div className="space-y-6">
-                           <div className="flex items-start gap-4">
-                            <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
-                              <MessageSquare className="h-5 w-5 text-indigo-600" />
+                           <div className="flex items-start gap-3 md:gap-4">
+                            <div className="h-8 w-8 md:h-10 md:w-10 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
+                              <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-indigo-600" />
                             </div>
-                            <div className="space-y-4 flex-1">
-                              <p className="text-xl font-bold text-zinc-900 leading-tight">
+                            <div className="space-y-3 md:space-y-4 flex-1">
+                              <p className="text-lg md:text-xl font-bold text-zinc-900 leading-tight">
                                 {generatedComment || strategy?.strategicComment}
                               </p>
                               <div className="flex flex-wrap gap-2">
@@ -320,12 +320,12 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                         </div>
                       ) : (
                         <div className="space-y-6">
-                           <div className="flex items-start gap-4">
-                            <div className="h-10 w-10 bg-amber-50 rounded-full flex items-center justify-center shrink-0">
-                              <MailIcon className="h-5 w-5 text-amber-600" />
+                           <div className="flex items-start gap-3 md:gap-4">
+                            <div className="h-8 w-8 md:h-10 md:w-10 bg-amber-50 rounded-full flex items-center justify-center shrink-0">
+                              <MailIcon className="h-4 w-4 md:h-5 md:w-5 text-amber-600" />
                             </div>
-                            <div className="space-y-4 flex-1">
-                              <p className="text-xl font-bold text-zinc-900 leading-tight italic">
+                            <div className="space-y-3 md:space-y-4 flex-1">
+                              <p className="text-lg md:text-xl font-bold text-zinc-900 leading-tight italic">
                                 "{strategy?.directMessage || 'Generate strategy to see DM'}"
                               </p>
                             </div>
@@ -334,11 +334,11 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                       )}
                     </div>
 
-                    <div className="pt-8 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-6">
-                      <div className="flex items-center gap-4">
+                    <div className="pt-6 md:pt-8 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
                         <button 
                           onClick={() => copyToClipboard(activeTab === 'comment' ? (generatedComment || strategy?.strategicComment) : strategy?.directMessage)}
-                          className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-50 text-zinc-600 rounded-2xl font-bold text-xs hover:bg-zinc-100 transition-all border border-zinc-100"
+                          className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-50 text-zinc-600 rounded-xl md:rounded-2xl font-bold text-xs hover:bg-zinc-100 transition-all border border-zinc-100"
                         >
                           <Copy className="h-4 w-4" />
                           Copy Draft
@@ -347,7 +347,7 @@ export function LinkedInAssistant({ onInterceptComplete }: LinkedInAssistantProp
                         {activeTab === 'comment' && (
                           <button 
                             onClick={() => postComment(generatedComment || strategy?.strategicComment)}
-                            className="flex items-center justify-center gap-2 px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-xs hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                            className="flex items-center justify-center gap-2 px-6 md:px-8 py-3 bg-indigo-600 text-white rounded-xl md:rounded-2xl font-bold text-xs hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                           >
                             <Send className="h-4 w-4" />
                             Post to LinkedIn
